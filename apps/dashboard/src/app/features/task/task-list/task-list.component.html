@@ -1,0 +1,83 @@
+<div class="p-6 max-w-6xl mx-auto">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">Tasks</h1>
+    <button routerLink="/tasks/new" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+      + New Task
+    </button>
+  </div>
+
+  <div *ngIf="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+    {{ error }}
+  </div>
+
+  <div class="mb-4">
+    <label class="block text-gray-700 font-medium mb-2">Filter by Category</label>
+    <select
+      [(ngModel)]="selectedCategory"
+      (change)="filterTasks()"
+      class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+    >
+      <option *ngFor="let cat of categories" [value]="cat">
+        {{ cat }}
+      </option>
+    </select>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-8">
+    <p class="text-gray-600">Loading tasks...</p>
+  </div>
+
+  <div *ngIf="!loading && filteredTasks.length === 0" class="text-center py-8">
+    <p class="text-gray-600">No tasks found</p>
+  </div>
+
+  <div cdkDropList class="space-y-3" *ngIf="!loading && filteredTasks.length > 0">
+    <div
+      *ngFor="let task of filteredTasks"
+      cdkDrag
+      class="bg-white p-4 rounded-lg shadow hover:shadow-md transition cursor-move border-l-4"
+      [ngClass]="{
+        'border-blue-500': task.status === TaskStatus.TODO,
+        'border-yellow-500': task.status === TaskStatus.IN_PROGRESS,
+        'border-green-500': task.status === TaskStatus.COMPLETED,
+      }"
+    >
+      <div class="flex justify-between items-start">
+        <div class="flex-1">
+          <h3 class="font-semibold text-gray-800">{{ task.title }}</h3>
+          <p class="text-gray-600 text-sm mt-1">{{ task.description }}</p>
+          <div class="flex gap-2 mt-2 text-xs">
+            <span class="bg-gray-100 px-2 py-1 rounded">{{ task.category }}</span>
+            <span
+              [ngClass]="{
+                'bg-blue-100 text-blue-800': task.status === TaskStatus.TODO,
+                'bg-yellow-100 text-yellow-800': task.status === TaskStatus.IN_PROGRESS,
+                'bg-green-100 text-green-800': task.status === TaskStatus.COMPLETED,
+              }"
+              class="px-2 py-1 rounded"
+            >
+              {{ task.status }}
+            </span>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <select
+            [(ngModel)]="task.status"
+            (change)="updateTaskStatus(task, task.status)"
+            class="text-xs px-2 py-1 border border-gray-300 rounded"
+          >
+            <option [value]="TaskStatus.TODO">Todo</option>
+            <option [value]="TaskStatus.IN_PROGRESS">In Progress</option>
+            <option [value]="TaskStatus.COMPLETED">Completed</option>
+          </select>
+          <button
+            (click)="deleteTask(task.id)"
+            class="text-red-600 hover:text-red-800 font-medium text-sm"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
